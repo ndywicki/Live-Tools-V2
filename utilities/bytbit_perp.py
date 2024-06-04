@@ -100,8 +100,11 @@ class PerpBybit:
 
     def amount_to_precision(self, pair: str, amount: float) -> float:
         pair = self.ext_pair_to_pair(pair)
-        precision = self._session.markets[pair]['precision']['amount']
-        return precision if amount < precision else self._session.amount_to_precision(pair, amount)
+        try:
+            precision = self._session.markets[pair]['precision']['amount']
+            return precision if amount < precision else self._session.amount_to_precision(pair, amount)
+        except Exception as e:
+            return 0
 
     def price_to_precision(self, pair: str, price: float) -> float:
         pair = self.ext_pair_to_pair(pair)
@@ -282,10 +285,10 @@ class PerpBybit:
             # order = await self.get_order_by_id(order_id, pair)
             # return order
         except Exception as e:
+            print(f"Error {type} {side} {size} {pair} - Price {price} - Error => {str(e)}")
             if error:
                 raise e
             else:
-                print(e)
                 return None
 
     async def place_trigger_order(
@@ -326,10 +329,10 @@ class PerpBybit:
             resp = Info(success=True, message="Trigger Order set up")
             return resp
         except Exception as e:
+            print(f"Error {type} {side} {size} {pair} - Trigger {trigger_price} - Price {price} - Error => {str(e)}")
             if error:
                 raise e
             else:
-                print(e)
                 return None
 
     async def get_open_orders(self, pair) -> List[Order]:
