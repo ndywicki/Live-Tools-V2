@@ -23,18 +23,23 @@ def load_config(file_path):
     
 async def main():
     parser = argparse.ArgumentParser(description='Load pairs configuration from a JSON file.')
-    parser.add_argument('pairs_config_file', nargs='?', default='pairs.json', type=str, help='The path to the JSON configuration pairs file (default: pairs.json)')
-    
+    parser.add_argument('--pairs', default='pairs.json', type=str, help='The path to the JSON configuration pairs file (default: pairs.json)')
+    parser.add_argument('--account', default='bybit', type=str, help='The name of the bybit (sub)account')
     args = parser.parse_args()
     script_dir = os.path.dirname(os.path.realpath(__file__))
     root_dir = os.path.abspath(os.path.join(script_dir, '../../'))
     # Si un fichier est spécifié, vérifier s'il est relatif ou absolu
-    if not os.path.isabs(args.pairs_config_file):
+    if not os.path.isabs(args.pairs):
         # Construire le chemin complet depuis le répertoire du script
-        args.pairs_config_file = os.path.join(root_dir, args.pairs_config_file)
-    params = load_config(args.pairs_config_file)
-    
-    account = ACCOUNTS["bybit"]
+        args.pairs = os.path.join(root_dir, args.pairs)
+    params = load_config(args.pairs)
+
+    try:
+        account = ACCOUNTS[args.account]
+    except KeyError:
+        print(f"Account '{args.account}' not found in the secret.py")
+        return
+    print(f"Account Name: {args.account}")
 
     margin_mode = "crossed"  # isolated or crossed
     exchange_leverage = 3
