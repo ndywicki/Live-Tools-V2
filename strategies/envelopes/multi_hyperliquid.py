@@ -1,5 +1,8 @@
 import datetime
 import sys
+import json
+import argparse
+import os
 
 sys.path.append("./Live-Tools-V2")
 
@@ -11,9 +14,29 @@ import ta
 if sys.platform == "win32":
     asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
 
+def load_config(file_path):
+    with open(file_path, 'r') as file:
+        return json.load(file)
 
 async def main():
-    account = ACCOUNTS["hyperliquid1"]
+    parser = argparse.ArgumentParser(description='Load pairs configuration from a JSON file.')
+    parser.add_argument('--pairs', default='pairs.json', type=str, help='The path to the JSON configuration pairs file (default: pairs.json)')
+    parser.add_argument('--account', default='hyperliquid1', type=str, help='The name of the hyperliquid (sub)account')
+    args = parser.parse_args()
+    script_dir = os.path.dirname(os.path.realpath(__file__))
+    root_dir = os.path.abspath(os.path.join(script_dir, '../../'))
+    # Si un fichier est spécifié, vérifier s'il est relatif ou absolu
+    if not os.path.isabs(args.pairs):
+        # Construire le chemin complet depuis le répertoire du script
+        args.pairs = os.path.join(root_dir, args.pairs)
+    params = load_config(args.pairs)
+    
+    try:
+        account = ACCOUNTS[args.account]
+    except KeyError:
+        print(f"Account '{args.account}' not found in the secret.py")
+        return
+    print(f"Account Name: {args.account}")
 
     margin_mode = "isolated"  # isolated or crossed
     leverage = 10
@@ -21,15 +44,6 @@ async def main():
 
     tf = "15m"
     sl = 0.3
-    params = {
-        "SOL/USDC": {
-            "src": "close",
-            "ma_base_window": 7,
-            "envelopes": [0.03],
-            "size": 0.5,
-            "sides": ["long", "short"],
-        }
-    }
 
     exchange = PerpHyperliquid(
         public_adress=account["public_adress"],

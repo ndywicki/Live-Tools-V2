@@ -1,0 +1,9 @@
+{
+  "SOL/USDC": {
+      "src": "close",
+      "ma_base_window": 7,
+      "envelopes": [0.03],
+      "size": 0.5,
+      "sides": ["long", "short"]
+  }
+}
