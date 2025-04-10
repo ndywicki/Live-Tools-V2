@@ -101,7 +101,8 @@ class PerpBitget:
     def amount_to_precision(self, pair: str, amount: float) -> float:
         pair = self.ext_pair_to_pair(pair)
         try:
-            return self._session.amount_to_precision(pair, amount)
+            precision = self._session.markets[pair]['precision']['amount']
+            return precision if amount < precision else self._session.amount_to_precision(pair, amount)
         except Exception as e:
             return 0
 
