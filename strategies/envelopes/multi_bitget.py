@@ -16,7 +16,7 @@ async def main():
     account = ACCOUNTS["bitget1"]
 
     margin_mode = "isolated"  # isolated or crossed
-    leverage = 20
+    leverage = 8
     hedge_mode = True # Warning, set to False if you are in one way mode
 
     tf = "1h"
